@@ -17,6 +17,8 @@
 {
     NSLog(@"You tapped it!");
     
+    kpClient = [[AFHTTPClient alloc] initWithBaseURL:[[NSURL alloc] initWithString:@"http://www.karmapoints.org/rest/"]];
+    
     if ( [username.text length] > 0 && [password.text length] > 0  ) {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         
@@ -36,20 +38,8 @@
         [request setHTTPMethod:@"POST"];
         [request setValue:[NSString stringWithFormat:@"%d", [body length]] forHTTPHeaderField:@"Content-Length"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        /*
-        [request setValue:@"keep-alive" forHTTPHeaderField:@"Connection"];
-        [request setValue:@"300" forHTTPHeaderField:@"Keep-Alive"];
-         */
+
         [request setHTTPShouldHandleCookies:YES];
-        /*
-         $curl = curl_init($request_url);
-         curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept: application/json')); // Accept JSON response
-         curl_setopt($curl, CURLOPT_POST, 1); // Do a regular HTTP POST
-         curl_setopt($curl, CURLOPT_POSTFIELDS, $user_data); // Set POST data
-         curl_setopt($curl, CURLOPT_HEADER, FALSE);  // Ask to not return Header
-         curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-         curl_setopt($curl, CURLOPT_FAILONERROR, TRUE);
-         */
         
         [request setTimeoutInterval:10.0];
         
@@ -60,7 +50,7 @@
             NSLog(@"%@",[headers objectForKey:key]);
         }
         
-        NSLog([NSString stringWithFormat:@"|%@|", [request HTTPBody]]);
+        NSLog([NSString stringWithFormat:@"%@", [request HTTPBody]]);
         
         NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:request delegate:self];
 
