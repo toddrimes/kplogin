@@ -9,17 +9,27 @@
 #import <UIKit/UIKit.h>
 #import "AFHTTPClient.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <NSXMLParserDelegate>
 {
     UITextField *username;
     UITextField *password;
     UITextView *webResponse;
+    NSString *sessid;
+    NSString *currentElement;
+    
+@private
+    NSMutableString *currentParsedCharacterData;
 }
+
 @property (nonatomic, retain) IBOutlet UITextField *username;
 @property (nonatomic, retain) IBOutlet UITextField *password;
 @property (nonatomic, retain) IBOutlet UITextView *webResponse;
+@property (nonatomic, retain) NSString *sessid;
+
+@property (nonatomic, retain) NSString *currentElement;
+
 @property (nonatomic, retain) NSMutableData *receivedData;
-@property (nonatomic, retain) AFHTTPClient *kpClient;
+
 - (IBAction) loginButtonTapped;
 
 @end

@@ -7,26 +7,22 @@
 //
 
 #import "ViewController.h"
-#import "AFHTTPClient.h"
+#import "AFXMLRequestOperation.h"
 
 @implementation ViewController
 
-@synthesize username, password, webResponse, receivedData, kpClient;
+@synthesize username, password, webResponse, receivedData, sessid, currentElement;
 
 - (IBAction) loginButtonTapped
 {
     NSLog(@"You tapped it!");
     
-    kpClient = [[AFHTTPClient alloc] initWithBaseURL:[[NSURL alloc] initWithString:@"http://www.karmapoints.org/rest/"]];
-    
     if ( [username.text length] > 0 && [password.text length] > 0  ) {
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         
-        NSString *url = [NSString stringWithFormat:
-                         @"http://www.karmapoints.org/rest/system/connect"];
+        NSString *url = [NSString stringWithFormat:@"http://www.karmapoints.org/rest/system/connect"];
         
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] 
-                                        init];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
         
         [request setURL:[NSURL URLWithString:url]];
         
@@ -38,9 +34,7 @@
         [request setHTTPMethod:@"POST"];
         [request setValue:[NSString stringWithFormat:@"%d", [body length]] forHTTPHeaderField:@"Content-Length"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-
-        [request setHTTPShouldHandleCookies:YES];
-        
+        [request setHTTPShouldHandleCookies:YES];        
         [request setTimeoutInterval:10.0];
         
         NSDictionary *headers = [[NSDictionary alloc] init ];
@@ -51,10 +45,24 @@
         }
         
         NSLog([NSString stringWithFormat:@"%@", [request HTTPBody]]);
-        
+         
         NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:request delegate:self];
-
         
+        if(theConnection) {
+            
+            // receivedData is declared as a method instance elsewhere
+            receivedData = [NSMutableData data];
+        }
+
+        /*
+        AFXMLRequestOperation *operation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
+            XMLParser.delegate = self;
+            [XMLParser parse];
+        } failure:nil];
+        
+        NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+        [queue addOperation:operation];
+        */
 // [self getNewMessages];
     }
     
@@ -104,6 +112,10 @@
     // receivedData is declared as a method instance elsewhere
     NSLog(@"Succeeded! Received %d bytes of data",[receivedData length]);
     
+    NSXMLParser *parser = [[NSXMLParser alloc] initWithData:receivedData];
+    parser.delegate = self;
+    _Bool *result = parser.parse;
+    
     // release the connection, and the data object
     connection = nil;
     receivedData = nil;
@@ -113,6 +125,35 @@
 {
     [super didReceiveMemoryWarning];
     // Release any cached data, images, etc that aren't in use.
+}
+
+#pragma mark - NXSMLParserDelegate methods
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName
+  namespaceURI:(NSString *)namespaceURI
+ qualifiedName:(NSString *)qName
+    attributes:(NSDictionary *)attributeDict {
+    [currentParsedCharacterData setString:@""];
+    currentElement = elementName;
+}
+
+- (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
+    if ([currentElement isEqualToString:@"sessid"]) {
+        if ([currentElement isEqualToString:@"sessid"]) {
+            self.sessid = [NSString stringWithString:string];
+            NSLog(@"Just set session id to %@",self.sessid);
+        }
+
+    }
+}
+
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName
+  namespaceURI:(NSString *)namespaceURI
+ qualifiedName:(NSString *)qName
+    attributes:(NSDictionary *)attributeDict {
+    if ([currentElement isEqualToString:@"sessid"]) {
+        self.sessid = [NSString stringWithString:self->currentParsedCharacterData];
+        NSLog(@"Just set session id to %@",self.sessid);
+    }
 }
 
 #pragma mark - View lifecycle
