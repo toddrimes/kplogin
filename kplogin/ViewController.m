@@ -46,15 +46,10 @@
         
         NSLog([NSString stringWithFormat:@"%@", [request HTTPBody]]);
          
-        NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:request delegate:self];
+        // NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:request delegate:self];
         
-        if(theConnection) {
-            
-            // receivedData is declared as a method instance elsewhere
-            receivedData = [NSMutableData data];
-        }
-
-        /*
+        receivedData = [NSMutableData data];
+        
         AFXMLRequestOperation *operation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
             XMLParser.delegate = self;
             [XMLParser parse];
@@ -62,8 +57,7 @@
         
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
         [queue addOperation:operation];
-        */
-// [self getNewMessages];
+
     }
     
     password.text = @"";
@@ -143,16 +137,6 @@
             NSLog(@"Just set session id to %@",self.sessid);
         }
 
-    }
-}
-
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName
-  namespaceURI:(NSString *)namespaceURI
- qualifiedName:(NSString *)qName
-    attributes:(NSDictionary *)attributeDict {
-    if ([currentElement isEqualToString:@"sessid"]) {
-        self.sessid = [NSString stringWithString:self->currentParsedCharacterData];
-        NSLog(@"Just set session id to %@",self.sessid);
     }
 }
 
