@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "AFXMLRequestOperation.h"
+#import "AFHTTPRequestOperation.h"
 
 @implementation ViewController
 
@@ -22,47 +23,119 @@
         
         NSString *url = [NSString stringWithFormat:@"http://www.karmapoints.org/rest/system/connect"];
         
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
+        NSMutableURLRequest *sessionRequest = [[NSMutableURLRequest alloc] init];
         
-        [request setURL:[NSURL URLWithString:url]];
+        [sessionRequest setURL:[NSURL URLWithString:url]];
         
         NSMutableData *body = [NSMutableData data];
         [body appendData:[[NSString stringWithFormat:@"name=%@&pass=%@", 
                            [defaults stringForKey:@"username"], 
                            password.text] dataUsingEncoding:NSUTF8StringEncoding]];
-        [request setHTTPBody:body];        
-        [request setHTTPMethod:@"POST"];
-        [request setValue:[NSString stringWithFormat:@"%d", [body length]] forHTTPHeaderField:@"Content-Length"];
-        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [request setHTTPShouldHandleCookies:YES];        
-        [request setTimeoutInterval:10.0];
+        [sessionRequest setHTTPBody:body];        
+        [sessionRequest setHTTPMethod:@"POST"];
+        [sessionRequest setValue:[NSString stringWithFormat:@"%d", [body length]] forHTTPHeaderField:@"Content-Length"];
+        [sessionRequest setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [sessionRequest setHTTPShouldHandleCookies:YES];        
+        [sessionRequest setTimeoutInterval:10.0];
         
         NSDictionary *headers = [[NSDictionary alloc] init ];
-        headers = [request allHTTPHeaderFields];
+        headers = [sessionRequest allHTTPHeaderFields];
         
         for(NSString *key in [headers allKeys]) {
             NSLog(@"%@",[headers objectForKey:key]);
         }
         
-        NSLog([NSString stringWithFormat:@"%@", [request HTTPBody]]);
+        NSLog([NSString stringWithFormat:@"%@", [sessionRequest HTTPBody]]);
          
         // NSURLConnection *theConnection=[[NSURLConnection alloc] initWithRequest:request delegate:self];
         
         receivedData = [NSMutableData data];
         
-        AFXMLRequestOperation *operation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest:request success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
+        AFXMLRequestOperation *sessionCall = [AFXMLRequestOperation XMLParserRequestOperationWithRequest:sessionRequest success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
             XMLParser.delegate = self;
             [XMLParser parse];
         } failure:nil];
         
         NSOperationQueue *queue = [[NSOperationQueue alloc] init];
-        [queue addOperation:operation];
+        [queue addOperation:sessionCall];
+        //
+        
+        NSBlockOperation *loginBlockOperation = 
+        [NSBlockOperation blockOperationWithBlock:^{
+            NSMutableURLRequest *loginRequest = [[NSMutableURLRequest alloc] 
+                                                 initWithURL:[NSURL URLWithString:@"http://www.karmapoints.org/rest/user/login"]];
+            NSMutableData *loginBody = [NSMutableData data];
+            NSLog(@"sessid is%@",self.sessid);
+            
+            NSLog(@"username is%@", username.text);
+            
+            NSLog(@"password is%@", password.text);
+            [loginBody setData:[[NSString stringWithFormat:@"sessid=%@&username=%@&password=%@", 
+                                 self.sessid,
+                                 username.text, 
+                                 password.text] dataUsingEncoding:NSUTF8StringEncoding]];
+            [loginRequest setHTTPBody:loginBody];        
+            [loginRequest setHTTPMethod:@"POST"];
+            [loginRequest setValue:[NSString stringWithFormat:@"%d",[loginBody length] ] forHTTPHeaderField:@"Content-Length"];
+            [loginRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+            [loginRequest setHTTPShouldHandleCookies:YES];        
+            [loginRequest setTimeoutInterval:10.0];
+            /*
+            AFHTTPRequestOperation *loginCall = [[AFHTTPRequestOperation alloc] initWithRequest:loginRequest];
+            loginCall.completionBlock = ^ {
+                if ([loginCall hasAcceptableStatusCode]) {
+                    NSLog(@"Friend Request Sent");
+                } else {
+                    NSLog(@"[Error]: (%@ %@) %@", [loginCall.request HTTPMethod], [[loginCall.request URL] relativePath], loginCall.error);
+                }
+            };
+            [queue addOperation: loginCall];
+            */
+            
+            NSDictionary *headers = [[NSDictionary alloc] init ];
+            headers = [loginRequest allHTTPHeaderFields];
+            
+            for(NSString *key in [headers allKeys]) {
+                NSLog(@"%@ %@",key,[headers objectForKey:key]);
+            }
+            
+            NSLog([NSString stringWithFormat:@"%@", [loginRequest HTTPBody]]);
+        
+            NSURLResponse *response = nil;
+            NSError *error = nil;
+            NSData *urlData = [NSURLConnection sendSynchronousRequest:loginRequest returningResponse:&response error:&error];
+            NSXMLParser *parser = [[NSXMLParser alloc] initWithData:urlData];
+            parser.delegate = self;
+            [parser parse];
+        }];
+        
+        [loginBlockOperation addDependency:sessionCall];
+        [queue addOperation:loginBlockOperation];
 
+        //
     }
-    
-    password.text = @"";
 }
-              
+
+- (IBAction) logoutButtonTapped
+{
+    NSLog(@"Sad to see you go!");
+    NSMutableURLRequest *logoutRequest = [[NSMutableURLRequest alloc]
+                                         initWithURL:[NSURL URLWithString:@"http://www.karmapoints.org/logout"]];
+    [logoutRequest setHTTPMethod:@"GET"];
+    [logoutRequest setHTTPShouldHandleCookies:YES];        
+    [logoutRequest setTimeoutInterval:10.0];
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *urlData = [NSURLConnection sendSynchronousRequest:logoutRequest returningResponse:&response error:&error];
+}
+
+
+-(IBAction)textFieldReturn:(id)sender
+{
+    [sender resignFirstResponder];
+} 
+
+#pragma mark - Connection delegate
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     
     // cast the response to NSHTTPURLResponse so we can look for 404 etc
@@ -128,15 +201,28 @@
     attributes:(NSDictionary *)attributeDict {
     [currentParsedCharacterData setString:@""];
     currentElement = elementName;
+    NSLog(@"found element %@",currentElement);
+}
+
+
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+    [currentParsedCharacterData setString:@""];
+    currentElement = elementName;
+    NSLog(@"***END OF element %@",currentElement);
 }
 
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
     if ([currentElement isEqualToString:@"sessid"]) {
         if ([currentElement isEqualToString:@"sessid"]) {
             self.sessid = [NSString stringWithString:string];
-            NSLog(@"Just set session id to %@",self.sessid);
+            NSString *logLeader = @"Just set session id to ";
+            NSString *logMessage  = [logLeader stringByAppendingString:self.sessid];
+            logMessage  = [logMessage stringByAppendingString:@"\n"];
+            NSLog(@"%@",logMessage);
+            NSString *oldMessage = self.webResponse.text;
+            NSString *newMessage = [oldMessage stringByAppendingString:logMessage];
+            [webResponse performSelectorOnMainThread:@selector(setText:) withObject:newMessage waitUntilDone:YES];
         }
-
     }
 }
 

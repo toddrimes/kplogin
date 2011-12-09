@@ -30,6 +30,9 @@
 
 @property (nonatomic, retain) NSMutableData *receivedData;
 
-- (IBAction) loginButtonTapped;
+-(IBAction) loginButtonTapped;
+-(IBAction) logoutButtonTapped;
+
+-(IBAction)textFieldReturn:(id)sender;
 
 @end
