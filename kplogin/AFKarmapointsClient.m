@@ -11,18 +11,21 @@
 
 @implementation AFKarmapointsClient
 
-@synthesize currentElement, result, sessid, userid, currentParsedCharacterData;
+@synthesize currentElement, result, sessid, userid, currentParsedCharacterData, eventArray, currentEvent;
 
 -(id)init {
+    buildingEvent = false;
+    gettingEvents = false;
     currentParsedCharacterData = [[NSMutableString alloc] init];
     sessid = [[NSString alloc] init];
     sessid = @"";
     userid = [[NSString alloc] init];
     userid = @"";
+    eventArray = [[NSMutableArray alloc] init];
     return [super initWithBaseURL:[NSURL URLWithString:@"http://www.karmapoints.org"]];
 }
 
--(NSString *) loginWithUser:(NSString *)user pass:(NSString *)pass
+-(NSNumber *) loginWithUser:(NSString *)user pass:(NSString *)pass
 {
     NSMutableURLRequest *sessionRequest = [self requestWithMethod:@"POST" path:@"/rest/system/connect" parameters:nil];
     NSMutableData *body = [NSMutableData data];
@@ -97,17 +100,33 @@
     result = @"";
     
     if (self.userid!=@"NOUSERID" && [self.userid intValue]!=0) {
-        result = [NSString stringWithFormat:@"You are logged in as user %@.  ***To log out, quit the app.***",self.userid];
+        return [[NSNumber alloc] initWithInteger:[self.userid integerValue]];
     } else {
-        result = @"An error occured.  Please try again.";
+        return [[NSNumber alloc] initWithInt:0];
     }
-    return result;
 }
      
 -(void) logout
 {
     [self getPath:@"/logout" parameters:nil success:nil failure:nil];
     NSLog(@"Logged out");
+}
+
+-(NSArray *) getCoordinatorEvents {
+    gettingEvents = true;
+    NSMutableURLRequest *eventRequest = [self requestWithMethod:@"GET" path:@"/rest/views/view_mobile_coordinator_events" parameters:nil];
+
+    AFXMLRequestOperation *eventOperation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest:eventRequest success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
+        XMLParser.delegate = (id)self;
+        [XMLParser parse];
+    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, NSXMLParser *XMLParse) {
+        NSLog(@"Didn't get a session id.   Bummer.");
+    }];
+    
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    [queue addOperation:eventOperation];
+    [queue waitUntilAllOperationsAreFinished];
+    return self.eventArray;
 }
 
 #pragma mark - NXSMLParserDelegate methods
@@ -117,11 +136,35 @@
     attributes:(NSDictionary *)attributeDict {
     self.currentParsedCharacterData = [NSMutableString stringWithString:@""];
     self.currentElement = elementName;
+    if(gettingEvents && [elementName isEqualToString:@"item"]) {
+        buildingEvent = true;
+        self.currentEvent = [[KPEvent alloc] init];
+    }
     NSLog(@"***START element %@",self.currentElement);
 }
 
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+    if (gettingEvents) {
+        if(buildingEvent) {
+            if([elementName isEqualToString:@"nid"]){
+                self.currentEvent.nid = self.currentParsedCharacterData;
+            }
+            
+            if([elementName isEqualToString:@"node_data_field_start_datetime_field_start_datetime_value"]){
+                self.currentEvent.startDateTime = [self.currentParsedCharacterData substringToIndex:10];
+            }
+            
+            if([elementName isEqualToString:@"node_title"]){
+                self.currentEvent.title = self.currentParsedCharacterData;
+            }
+            
+            if([elementName isEqualToString:@"item"]){
+                [self.eventArray addObject:self.currentEvent];
+                buildingEvent = false;
+            }
+        }   
+    }
     NSLog(@"END OF element %@***",elementName);
 }
 

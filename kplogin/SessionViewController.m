@@ -24,7 +24,24 @@ AFKarmapointsClient *sharedClient = nil;
         sharedClient = [AFKarmapointsClient new];
     }
     
-    webResponse.text = [sharedClient loginWithUser:username.text pass:password.text];}
+    NSNumber *uid = [sharedClient loginWithUser:username.text pass:password.text];
+    NSNumber *tester = [NSNumber numberWithInt:0];
+    if([uid isEqualToNumber:tester]) {
+        webResponse.text = @"An error occured.  Please try again.";
+    } else {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success" message:@"You are logged in.  To logout, quit." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
+        // tell the rootview controller to push on the event picker view
+        NSArray *events = [sharedClient getCoordinatorEvents];
+        [events enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSLog(@"%@ card at index %d", obj, idx);  
+        }];
+    }
+}
+
+- (IBAction) eventRowPicked
+{
+}
 
 - (IBAction) logoutButtonTapped
 {

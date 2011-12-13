@@ -25,6 +25,7 @@
 		5F6FDEDE148E1B1D0020F8AF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FDEDD148E1B1D0020F8AF /* AppDelegate.m */; };
 		5F6FDEE1148E1B1D0020F8AF /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5F6FDEDF148E1B1D0020F8AF /* MainStoryboard.storyboard */; };
 		5F6FDEE4148E1B1D0020F8AF /* SessionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FDEE3148E1B1D0020F8AF /* SessionViewController.m */; };
+		5F9D744D1497F3F200B6187A /* KPEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F9D744C1497F3F200B6187A /* KPEvent.m */; };
 		5FC1FFF0149273D000DDE84D /* AFKarmapointsClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FC1FFEF149273D000DDE84D /* AFKarmapointsClient.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
@@ -64,6 +65,8 @@
 		5F6FDEE0148E1B1D0020F8AF /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		5F6FDEE2148E1B1D0020F8AF /* SessionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SessionViewController.h; sourceTree = "<group>"; };
 		5F6FDEE3148E1B1D0020F8AF /* SessionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SessionViewController.m; sourceTree = "<group>"; };
+		5F9D744B1497F3F200B6187A /* KPEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KPEvent.h; sourceTree = "<group>"; };
+		5F9D744C1497F3F200B6187A /* KPEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KPEvent.m; sourceTree = "<group>"; };
 		5FC1FFEE149273D000DDE84D /* AFKarmapointsClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFKarmapointsClient.h; path = ../AFKarmapointsClient.h; sourceTree = "<group>"; };
 		5FC1FFEF149273D000DDE84D /* AFKarmapointsClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFKarmapointsClient.m; path = ../AFKarmapointsClient.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -109,6 +112,8 @@
 				5F0A9A22148FE91900BDFF73 /* AFXMLRequestOperation.m */,
 				5F0A9A23148FE91900BDFF73 /* UIImageView+AFNetworking.h */,
 				5F0A9A24148FE91900BDFF73 /* UIImageView+AFNetworking.m */,
+				5F9D744B1497F3F200B6187A /* KPEvent.h */,
+				5F9D744C1497F3F200B6187A /* KPEvent.m */,
 			);
 			path = AFNetworking;
 			sourceTree = "<group>";
@@ -242,6 +247,7 @@
 				5F0A9A2D148FE91900BDFF73 /* AFXMLRequestOperation.m in Sources */,
 				5F0A9A2E148FE91900BDFF73 /* UIImageView+AFNetworking.m in Sources */,
 				5FC1FFF0149273D000DDE84D /* AFKarmapointsClient.m in Sources */,
+				5F9D744D1497F3F200B6187A /* KPEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
