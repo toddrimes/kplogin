@@ -24,7 +24,8 @@
 		5F6FDEDA148E1B1D0020F8AF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FDED9148E1B1D0020F8AF /* main.m */; };
 		5F6FDEDE148E1B1D0020F8AF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FDEDD148E1B1D0020F8AF /* AppDelegate.m */; };
 		5F6FDEE1148E1B1D0020F8AF /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5F6FDEDF148E1B1D0020F8AF /* MainStoryboard.storyboard */; };
-		5F6FDEE4148E1B1D0020F8AF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FDEE3148E1B1D0020F8AF /* ViewController.m */; };
+		5F6FDEE4148E1B1D0020F8AF /* SessionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5F6FDEE3148E1B1D0020F8AF /* SessionViewController.m */; };
+		5FC1FFF0149273D000DDE84D /* AFKarmapointsClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 5FC1FFEF149273D000DDE84D /* AFKarmapointsClient.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,8 +62,10 @@
 		5F6FDEDC148E1B1D0020F8AF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5F6FDEDD148E1B1D0020F8AF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		5F6FDEE0148E1B1D0020F8AF /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
-		5F6FDEE2148E1B1D0020F8AF /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		5F6FDEE3148E1B1D0020F8AF /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		5F6FDEE2148E1B1D0020F8AF /* SessionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SessionViewController.h; sourceTree = "<group>"; };
+		5F6FDEE3148E1B1D0020F8AF /* SessionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SessionViewController.m; sourceTree = "<group>"; };
+		5FC1FFEE149273D000DDE84D /* AFKarmapointsClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFKarmapointsClient.h; path = ../AFKarmapointsClient.h; sourceTree = "<group>"; };
+		5FC1FFEF149273D000DDE84D /* AFKarmapointsClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFKarmapointsClient.m; path = ../AFKarmapointsClient.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +85,8 @@
 		5F0A9A0E148FE91900BDFF73 /* AFNetworking */ = {
 			isa = PBXGroup;
 			children = (
+				5FC1FFEE149273D000DDE84D /* AFKarmapointsClient.h */,
+				5FC1FFEF149273D000DDE84D /* AFKarmapointsClient.m */,
 				5F0A9A0F148FE91900BDFF73 /* AFHTTPClient.h */,
 				5F0A9A10148FE91900BDFF73 /* AFHTTPClient.m */,
 				5F0A9A11148FE91900BDFF73 /* AFHTTPRequestOperation.h */,
@@ -141,8 +146,8 @@
 				5F6FDEDC148E1B1D0020F8AF /* AppDelegate.h */,
 				5F6FDEDD148E1B1D0020F8AF /* AppDelegate.m */,
 				5F6FDEDF148E1B1D0020F8AF /* MainStoryboard.storyboard */,
-				5F6FDEE2148E1B1D0020F8AF /* ViewController.h */,
-				5F6FDEE3148E1B1D0020F8AF /* ViewController.m */,
+				5F6FDEE2148E1B1D0020F8AF /* SessionViewController.h */,
+				5F6FDEE3148E1B1D0020F8AF /* SessionViewController.m */,
 				5F0A9A0E148FE91900BDFF73 /* AFNetworking */,
 				5F6FDED4148E1B1D0020F8AF /* Supporting Files */,
 			);
@@ -225,7 +230,7 @@
 			files = (
 				5F6FDEDA148E1B1D0020F8AF /* main.m in Sources */,
 				5F6FDEDE148E1B1D0020F8AF /* AppDelegate.m in Sources */,
-				5F6FDEE4148E1B1D0020F8AF /* ViewController.m in Sources */,
+				5F6FDEE4148E1B1D0020F8AF /* SessionViewController.m in Sources */,
 				5F0A9A25148FE91900BDFF73 /* AFHTTPClient.m in Sources */,
 				5F0A9A26148FE91900BDFF73 /* AFHTTPRequestOperation.m in Sources */,
 				5F0A9A27148FE91900BDFF73 /* AFImageCache.m in Sources */,
@@ -236,6 +241,7 @@
 				5F0A9A2C148FE91900BDFF73 /* AFURLConnectionOperation.m in Sources */,
 				5F0A9A2D148FE91900BDFF73 /* AFXMLRequestOperation.m in Sources */,
 				5F0A9A2E148FE91900BDFF73 /* UIImageView+AFNetworking.m in Sources */,
+				5FC1FFF0149273D000DDE84D /* AFKarmapointsClient.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "AFHTTPClient.h"
 
-@interface ViewController : UIViewController <NSXMLParserDelegate>
+@interface SessionViewController : UIViewController
 {
     UITextField *username;
     UITextField *password;
@@ -25,9 +25,6 @@
 @property (nonatomic, retain) IBOutlet UITextField *password;
 @property (nonatomic, retain) IBOutlet UITextView *webResponse;
 @property (nonatomic, retain) NSString *sessid;
-
-@property (nonatomic, retain) NSString *currentElement;
-
 @property (nonatomic, retain) NSMutableData *receivedData;
 
 -(IBAction) loginButtonTapped;
