@@ -9,13 +9,22 @@
 #import "SessionViewController.h"
 #import "AFXMLRequestOperation.h"
 #import "AFHTTPRequestOperation.h"
+#import "AFXMLRequestOperation.h"
 #import "AFKarmapointsClient.h"
+#import "KPEvent.h"
 
 AFKarmapointsClient *sharedClient = nil;
+bool loggedIn = false;
 
 @implementation SessionViewController
 
-@synthesize username, password, webResponse, receivedData, sessid;
+@synthesize username, password, eventPicker, receivedData, sessid, eventArray, pickedEvent, currentElement, currentEvent;
+
+-(id) init {
+    self = [super init];
+    self.eventArray = nil;
+    return self;
+}
 
 - (IBAction) loginButtonTapped
 {
@@ -27,16 +36,48 @@ AFKarmapointsClient *sharedClient = nil;
     NSNumber *uid = [sharedClient loginWithUser:username.text pass:password.text];
     NSNumber *tester = [NSNumber numberWithInt:0];
     if([uid isEqualToNumber:tester]) {
-        webResponse.text = @"An error occured.  Please try again.";
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message: @"An error occured.  Please try again." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [alert show];
     } else {
+        loggedIn = true;
+        // tell the rootview controller to push on the event picker view
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Success" message:@"You are logged in.  To logout, quit." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
         [alert show];
-        // tell the rootview controller to push on the event picker view
-        NSArray *events = [sharedClient getCoordinatorEvents];
-        [events enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            NSLog(@"%@ card at index %d", obj, idx);  
-        }];
     }
+}
+
+- (void) loadEvents {
+    eventArray = [[NSMutableArray alloc] init];
+    /* Operation Queue init (autorelease) */
+    NSOperationQueue *queue = [NSOperationQueue new];
+    
+    NSMutableURLRequest *eventsRequest = [sharedClient requestWithMethod:@"GET" path:@"/rest/views/view_mobile_coordinator_events" parameters:nil];
+    
+    AFXMLRequestOperation *eventOperation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest:eventsRequest success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
+        XMLParser.delegate = (id)self;
+        [XMLParser parse];
+    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, NSXMLParser *XMLParse) {
+        NSLog(@"Didn't get any events.   Bummer.");
+    }];
+    
+    NSBlockOperation *updatePickerOperation = 
+    [NSBlockOperation blockOperationWithBlock:^{
+        [self showEventSelector];
+    }];
+    
+    /* Add the operation to the queue */
+    [updatePickerOperation addDependency:eventOperation];
+    [queue addOperation:eventOperation];
+    [queue addOperation:updatePickerOperation];
+    [queue waitUntilAllOperationsAreFinished];
+}
+
+- (void) showEventSelector
+{
+    eventPicker = [[UIPickerView alloc] initWithFrame:CGRectMake(0, 244, 320, 216)];
+    eventPicker.delegate = self;
+    eventPicker.showsSelectionIndicator = YES;
+    [self.view addSubview:eventPicker];
 }
 
 - (IBAction) eventRowPicked
@@ -158,5 +199,85 @@ AFKarmapointsClient *sharedClient = nil;
     // Return YES for supported orientations
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
+
+#pragma mark -
+#pragma mark UIPickerViewDataSource
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+{
+    return 1;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+{
+    NSInteger mycount = [self.eventArray count];
+    return mycount;
+}
+
+- (NSString *)pickerView:(UIPickerView *)picker titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    NSString *thisTitle = [[self.eventArray objectAtIndex:row] title];
+    return thisTitle;
+}
+
+#pragma mark - 
+#pragma mark UIPickerViewDelegate
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow: (NSInteger)row inComponent:(NSInteger)component {
+    // Handle the selection
+    NSLog(@"You picked: %@",[[self.eventArray objectAtIndex:row] title]);
+
+}
+
+// TODO: set a cookie with selected event nid and call back to AppDelegate or RootView Controller to push scan/chekin view onto stack
+// FIXME: the picker should only bee refreshed if it is already displayed
+// ???: What is this?
+// !!!: This is too wrong!
+
+#pragma mark -
+#pragma mark UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex{
+    // The first button (or cancel button)
+    if (buttonIndex == 0 && loggedIn) {
+        [self loadEvents];
+        [self showEventSelector];
+    }
+}
+
+#pragma mark -
+#pragma mark - NXSMLParserDelegate methods
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName
+  namespaceURI:(NSString *)namespaceURI
+ qualifiedName:(NSString *)qName
+    attributes:(NSDictionary *)attributeDict {
+    self->currentParsedCharacterData = [NSMutableString stringWithString:@""];
+    self.currentElement = elementName;
+    if([elementName isEqualToString:@"item"]) {
+        self.currentEvent = [[KPEvent alloc] init];
+    }
+    NSLog(@"***START element %@",self.currentElement);
+}
+
+
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+    if([elementName isEqualToString:@"nid"]){
+        self.currentEvent.nid = self->currentParsedCharacterData;
+    }
+    
+    if([elementName isEqualToString:@"node_data_field_start_datetime_field_start_datetime_value"]){
+        self.currentEvent.startDateTime = [self->currentParsedCharacterData substringToIndex:10];
+    }
+    
+    if([elementName isEqualToString:@"node_title"]){
+        self.currentEvent.title = self->currentParsedCharacterData;
+    }
+    
+    if([elementName isEqualToString:@"item"]){
+        [self.eventArray addObject:self.currentEvent];    }
+    NSLog(@"END OF element %@***",elementName);
+}
+
+- (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
+    [self->currentParsedCharacterData appendString:string];
+}
+
 
 @end

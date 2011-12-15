@@ -95,11 +95,9 @@
     
     [loginBlockOperation addDependency:sessionOperation];
     [queue addOperation:loginBlockOperation];
-    [queue waitUntilAllOperationsAreFinished];
-    
-    result = @"";
-    
-    if (self.userid!=@"NOUSERID" && [self.userid intValue]!=0) {
+
+    [queue waitUntilAllOperationsAreFinished];    
+    if (self.userid!=@"" && [self.userid intValue]!=0) {
         return [[NSNumber alloc] initWithInteger:[self.userid integerValue]];
     } else {
         return [[NSNumber alloc] initWithInt:0];
@@ -112,13 +110,14 @@
     NSLog(@"Logged out");
 }
 
--(NSArray *) getCoordinatorEvents {
-    gettingEvents = true;
+-(NSMutableArray *) getCoordinatorEvents {
     NSMutableURLRequest *eventRequest = [self requestWithMethod:@"GET" path:@"/rest/views/view_mobile_coordinator_events" parameters:nil];
 
     AFXMLRequestOperation *eventOperation = [AFXMLRequestOperation XMLParserRequestOperationWithRequest:eventRequest success:^(NSURLRequest *request, NSHTTPURLResponse *response, NSXMLParser *XMLParser) {
         XMLParser.delegate = (id)self;
-        [XMLParser parse];
+        if ([self.userid intValue]>0) {
+         [XMLParser parse];
+        }
     } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, NSXMLParser *XMLParse) {
         NSLog(@"Didn't get a session id.   Bummer.");
     }];

@@ -27,13 +27,6 @@
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Response" lineBreakMode="tailTruncation" minimumFontSize="10" id="1XQ-j3-aPI">
-                                <rect key="frame" x="20" y="203" width="77" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="N4j-mT-9To">
                                 <rect key="frame" x="113" y="165" width="72" height="37"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -67,16 +60,6 @@
                                     <action selector="textFieldReturn:" destination="4" eventType="editingDidEndOnExit" id="UeY-hT-A50"/>
                                 </connections>
                             </textField>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="DTW-86-gca">
-                                <rect key="frame" x="20" y="232" width="280" height="160"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="0.98419592784508958" green="0.72394222500002581" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                <connections>
-                                    <outlet property="delegate" destination="3" id="EHW-BN-sU4"/>
-                                </connections>
-                            </textView>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="karmapoints" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="iI3-e7-n0d">
                                 <rect key="frame" x="113" y="29" width="95" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -90,7 +73,6 @@
                     <connections>
                         <outlet property="password" destination="doh-Vd-jms" id="x4u-5n-aMH"/>
                         <outlet property="username" destination="ewY-uC-Z2w" id="LkM-Pt-t8f"/>
-                        <outlet property="webResponse" destination="DTW-86-gca" id="SWU-VW-BGO"/>
                     </connections>
                 </viewController>
             </objects>

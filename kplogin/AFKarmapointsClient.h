@@ -31,7 +31,7 @@
 @property (nonatomic, retain) NSMutableString *currentParsedCharacterData;
 
 -(NSNumber *) loginWithUser:(NSString *)user pass:(NSString *)pass;
--(NSArray  *) getCoordinatorEvents;
+-(NSMutableArray  *) getCoordinatorEvents;
 -(void) logout;
 
 @end
