@@ -6,11 +6,13 @@
 //  Copyright (c) 2011 Rimes Media. All rights reserved.
 //
 
+#import "AppDelegate.h"
 #import "SessionViewController.h"
 #import "AFXMLRequestOperation.h"
 #import "AFHTTPRequestOperation.h"
 #import "AFXMLRequestOperation.h"
 #import "AFKarmapointsClient.h"
+#import "ScanViewController.h"
 #import "KPEvent.h"
 
 AFKarmapointsClient *sharedClient = nil;
@@ -98,6 +100,10 @@ bool loggedIn = false;
 -(IBAction)textFieldReturn:(id)sender
 {
     [sender resignFirstResponder];
+    if([sender tag]==2) {
+        // the user pressed return on the password field
+        [self loginButtonTapped];
+    }
 } 
 
 #pragma mark - Connection delegate
@@ -223,11 +229,35 @@ bool loggedIn = false;
 #pragma mark UIPickerViewDelegate
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow: (NSInteger)row inComponent:(NSInteger)component {
     // Handle the selection
-    NSLog(@"You picked: %@",[[self.eventArray objectAtIndex:row] title]);
+    
+    NSString *eventTitle = [[self.eventArray objectAtIndex:row] title];
+    NSLog(@"You picked: %@",eventTitle);
+    
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    appDelegate.eventTitle = eventTitle;
+    
+    NSString *event_id = [[self.eventArray objectAtIndex:row] nid];
+    
+    if (!sharedClient) {
+        sharedClient = [AFKarmapointsClient new];
+    }
+    NSDictionary *dict = [[NSDictionary alloc] initWithObjectsAndKeys:event_id, @"event_id", nil];
+    NSURLRequest *coordinatorRequest = [sharedClient requestWithMethod:@"GET" path:@"/coordinatorsession.php" parameters:dict];
+    AFHTTPRequestOperation *operation = [sharedClient HTTPRequestOperationWithRequest:coordinatorRequest success:^(AFHTTPRequestOperation *operation, id responseObject) {
+             UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard"
+                                                                  bundle:[NSBundle mainBundle]];
+             ScanViewController *svc = [storyboard instantiateViewControllerWithIdentifier:@"ScanView"]; 
+             [self.navigationController pushViewController:svc animated:YES];
+     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+         NSLog(@"Could not establish coordinator parameters.");
+     }];
 
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+    [queue addOperation: operation];
 }
 
-// TODO: set a cookie with selected event nid and call back to AppDelegate or RootView Controller to push scan/chekin view onto stack
+// TODO: (done) set a cookie with selected event nid and call back to AppDelegate or RootView Controller to push scan/chekin view onto stack
 // FIXME: the picker should only bee refreshed if it is already displayed
 // ???: What is this?
 // !!!: This is too wrong!

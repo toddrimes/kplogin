@@ -10,7 +10,7 @@
 
 @implementation AppDelegate
 
-@synthesize window = _window;
+@synthesize window = _window, eventTitle;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
